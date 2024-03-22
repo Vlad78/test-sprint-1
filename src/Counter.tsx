@@ -21,7 +21,7 @@ export const Counter = () => {
       <Screen title={count} />
       <div>
         <CustomButton onClick={handleIncrement} title={"Inrement"} isDisabled={count >= 5} />
-        <CustomButton onClick={handleReset} title={"Reset"} />
+        <CustomButton onClick={handleReset} title={"Reset"} isDisabled={count === 1} />
       </div>
     </StyledCouner>
   );

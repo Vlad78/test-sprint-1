@@ -31,4 +31,9 @@ const StyledButton = styled.button<{ disabled: boolean }>`
   font-size: 24px;
   font-weight: 700;
   background-color: ${(props) => (props.disabled ? "#e2e2e2" : "white")};
+
+  /* &:disabled {
+    background-color: #e2e2e2;
+    color: gray;
+  } */
 `;
