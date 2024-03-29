@@ -1,10 +1,8 @@
-import './App.css';
+import "./App.css";
 
-import styled from 'styled-components';
+import styled from "styled-components";
 
-import { Counter } from './Counter';
-import logo from './logo.svg';
-
+import { Counter } from "./components/Counter/Counter";
 
 function App() {
   return (

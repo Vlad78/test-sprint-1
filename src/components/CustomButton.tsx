@@ -1,21 +1,15 @@
-import { MouseEvent, MouseEventHandler } from 'react';
-import styled from 'styled-components';
-
+import { MouseEventHandler } from "react";
+import styled from "styled-components";
 
 type CustomButton = {
   title: string;
-  onClick: (e: MouseEvent<HTMLButtonElement>) => void;
+  onClick: MouseEventHandler<HTMLButtonElement>;
   isDisabled?: boolean;
 };
 
 export const CustomButton = ({ title, onClick, isDisabled = false }: CustomButton) => {
-  const onClickHandler: MouseEventHandler<HTMLButtonElement> = (e) => {
-    e.preventDefault();
-    onClick(e);
-  };
-
   return (
-    <StyledButton onClick={onClickHandler} disabled={isDisabled}>
+    <StyledButton onClick={onClick} disabled={isDisabled}>
       {title}
     </StyledButton>
   );

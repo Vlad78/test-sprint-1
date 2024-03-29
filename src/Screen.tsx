@@ -1,12 +1,12 @@
-import styled from 'styled-components';
-
+import styled from "styled-components";
 
 type Screen = {
-  title: number;
+  title: string | number;
+  isAlarmed: boolean;
 };
 
-export const Screen = (props: Screen) => {
-  return <StyledScreen className={props.title >= 5 ? "alarm" : ""}>{props.title}</StyledScreen>;
+export const Screen = ({ isAlarmed, title }: Screen) => {
+  return <StyledScreen className={isAlarmed ? "alarm" : ""}>{title}</StyledScreen>;
 };
 
 const StyledScreen = styled.div`
@@ -15,7 +15,7 @@ const StyledScreen = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 60px;
+  font-size: 40px;
   font-weight: 700;
   background-color: #b3b3b3;
   margin: 50px auto;
