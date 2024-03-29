@@ -1,11 +1,13 @@
-import { ChangeEventHandler, MouseEventHandler, useState } from "react";
-import styled from "styled-components";
+import { ChangeEventHandler, MouseEventHandler, useState } from 'react';
+import styled from 'styled-components';
 
-import { Screen } from "../../Screen";
-import { CustomButton } from "../CustomButton";
-import { CustomInput } from "../CustomInput";
-import { FlexWrapper } from "../FlexWrapper";
-import { TileWrapper } from "../TileWrapper";
+import { useLocalStorage } from '../../hooks/useLocalStorage';
+import { Screen } from '../../Screen';
+import { CustomButton } from '../CustomButton';
+import { CustomInput } from '../CustomInput';
+import { FlexWrapper } from '../FlexWrapper';
+import { TileWrapper } from '../TileWrapper';
+
 
 export enum STATUS {
   MAX_LESS_0 = "Max value can't be less than 0",
@@ -13,21 +15,58 @@ export enum STATUS {
   ALARM_LESS_0 = "Alarm value can't be less than 0",
   EQUAL = "Values can't be equal",
   MAX_LESS_DEF = "Max value can't be less then default value",
-  SET = "Set values",
-  EMPTY = "",
+  PENDING = "Set values",
+  EMPTY = "none",
 }
 
+const initStateDefValues = {
+  maxValue: 10,
+  defaultValue: 0,
+  alarmValue: 5,
+  statusMessage: STATUS.PENDING,
+  count: 0,
+};
+
 export const Counter = () => {
-  const [maxValue, setMaxValue] = useState(5);
-  const [defaultValue, setDefaultValue] = useState(0);
-  const [alarmValue, setAlarmValue] = useState(5);
+  const [localStorage, setLocalStorage] = useLocalStorage(initStateDefValues);
 
-  const [statusMessage, setStatusMessage] = useState(STATUS.SET);
+  const [maxValue, setMaxValue] = useState(localStorage.maxValue);
+  const [defaultValue, setDefaultValue] = useState(localStorage.defaultValue);
+  const [alarmValue, setAlarmValue] = useState(localStorage.alarmValue);
 
-  const [count, setCount] = useState(defaultValue);
+  const [statusMessage, setStatusMessage] = useState(localStorage.statusMessage);
+
+  const [count, setCount] = useState(localStorage.count);
+
+  setLocalStorage({ maxValue, defaultValue, alarmValue, statusMessage, count });
+
+  const handleIncrement: MouseEventHandler<HTMLButtonElement> = () => {
+    if (count === maxValue) return;
+    setCount((p) => p + 1);
+  };
+  const handleReset: MouseEventHandler<HTMLButtonElement> = () => {
+    setCount(defaultValue);
+  };
+  const handleSet: MouseEventHandler<HTMLButtonElement> = () => {
+    setCount(defaultValue);
+    setStatusMessage(STATUS.EMPTY);
+  };
+
+  const inputHandleChange: ChangeEventHandler<HTMLInputElement> = (e) => {
+    const { value, status } = validateInput(Number(e.target.value), e.target.name);
+    setStatusMessage(status);
+
+    if (e.target.name === "maxValue") {
+      setMaxValue(value);
+    } else if (e.target.name === "defaultValue") {
+      setDefaultValue(value);
+    } else if (e.target.name === "alarmValue") {
+      setAlarmValue(value);
+    }
+  };
 
   const validateInput = (value: number, name: string) => {
-    let status = STATUS.SET;
+    let status = STATUS.PENDING;
 
     if (name === "maxValue") {
       if (value < defaultValue) status = STATUS.MAX_LESS_DEF;
@@ -49,32 +88,6 @@ export const Counter = () => {
       if (value < 0) status = STATUS.ALARM_LESS_0;
     }
     return { value, status };
-  };
-
-  const handleIncrement: MouseEventHandler<HTMLButtonElement> = () => {
-    if (count === maxValue) return;
-    setCount((p) => p + 1);
-  };
-  const handleReset: MouseEventHandler<HTMLButtonElement> = () => {
-    setCount(defaultValue);
-  };
-
-  const inputHandleChange: ChangeEventHandler<HTMLInputElement> = (e) => {
-    const { value, status } = validateInput(Number(e.target.value), e.target.name);
-    setStatusMessage(status);
-
-    if (e.target.name === "maxValue") {
-      setMaxValue(value);
-    } else if (e.target.name === "defaultValue") {
-      setDefaultValue(value);
-    } else if (e.target.name === "alarmValue") {
-      setAlarmValue(value);
-    }
-  };
-
-  const handleSet: MouseEventHandler<HTMLButtonElement> = () => {
-    setCount(defaultValue);
-    setStatusMessage(STATUS.EMPTY);
   };
 
   return (
@@ -122,7 +135,8 @@ export const Counter = () => {
                 statusMessage === STATUS.ALARM_LESS_0 ||
                 statusMessage === STATUS.MAX_LESS_0 ||
                 statusMessage === STATUS.EQUAL ||
-                statusMessage === STATUS.MAX_LESS_DEF
+                statusMessage === STATUS.MAX_LESS_DEF ||
+                statusMessage === STATUS.EMPTY
               }
             />
           </FlexWrapper>
@@ -132,7 +146,7 @@ export const Counter = () => {
       <StyledCounter>
         <TileWrapper>
           <Screen
-            title={statusMessage ? statusMessage : count}
+            title={statusMessage !== STATUS.EMPTY ? statusMessage : count}
             isAlarmed={statusMessage === STATUS.EMPTY && count >= alarmValue}
           />
           <div className={"Counter__buttons-block"}>
