@@ -1,8 +1,9 @@
-import { ChangeEventHandler, MouseEventHandler } from "react";
-import styled from "styled-components";
+import { ChangeEventHandler, MouseEventHandler } from 'react';
+import styled from 'styled-components';
 
-import { CustomButton } from "../CustomButton";
-import { STATUS } from "./Counter";
+import { STATUS } from '../../features/counterSlice';
+import { CustomButton } from '../CustomButton';
+
 
 type SetupCounter = {
   statusMessage: STATUS;

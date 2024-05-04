@@ -1,6 +1,8 @@
 import { ChangeEventHandler, MouseEventHandler, useState } from 'react';
 import styled from 'styled-components';
 
+import { useAppDispatch, useAppSelector } from '../../app/hooks';
+import { action, STATUS } from '../../features/counterSlice';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
 import { Screen } from '../../Screen';
 import { CustomButton } from '../CustomButton';
@@ -9,85 +11,29 @@ import { FlexWrapper } from '../FlexWrapper';
 import { TileWrapper } from '../TileWrapper';
 
 
-export enum STATUS {
-  MAX_LESS_0 = "Max value can't be less than 0",
-  DEF_LESS_0 = "Default value can't be less than 0",
-  ALARM_LESS_0 = "Alarm value can't be less than 0",
-  EQUAL = "Values can't be equal",
-  MAX_LESS_DEF = "Max value can't be less then default value",
-  PENDING = "Set values",
-  EMPTY = "none",
-}
-
-const initStateDefValues = {
-  maxValue: 10,
-  defaultValue: 0,
-  alarmValue: 5,
-  statusMessage: STATUS.PENDING,
-  count: 0,
-};
-
 export const Counter = () => {
-  const [localStorage, setLocalStorage] = useLocalStorage(initStateDefValues);
+  // const [localStorage, setLocalStorage] = useLocalStorage(initStateDefValues);
 
-  const [maxValue, setMaxValue] = useState(localStorage.maxValue);
-  const [defaultValue, setDefaultValue] = useState(localStorage.defaultValue);
-  const [alarmValue, setAlarmValue] = useState(localStorage.alarmValue);
+  const { alarmValue, count, defaultValue, maxValue, statusMessage } = useAppSelector(
+    (state) => state.counter
+  );
+  const dispatcher = useAppDispatch();
 
-  const [statusMessage, setStatusMessage] = useState(localStorage.statusMessage);
-
-  const [count, setCount] = useState(localStorage.count);
-
-  setLocalStorage({ maxValue, defaultValue, alarmValue, statusMessage, count });
+  // setLocalStorage({ maxValue, defaultValue, alarmValue, statusMessage, count });
 
   const handleIncrement: MouseEventHandler<HTMLButtonElement> = () => {
     if (count === maxValue) return;
-    setCount((p) => p + 1);
+    dispatcher(action.increment());
   };
   const handleReset: MouseEventHandler<HTMLButtonElement> = () => {
-    setCount(defaultValue);
+    dispatcher(action.reset());
   };
   const handleSet: MouseEventHandler<HTMLButtonElement> = () => {
-    setCount(defaultValue);
-    setStatusMessage(STATUS.EMPTY);
+    dispatcher(action.setCount());
   };
 
   const inputHandleChange: ChangeEventHandler<HTMLInputElement> = (e) => {
-    const { value, status } = validateInput(Number(e.target.value), e.target.name);
-    setStatusMessage(status);
-
-    if (e.target.name === "maxValue") {
-      setMaxValue(value);
-    } else if (e.target.name === "defaultValue") {
-      setDefaultValue(value);
-    } else if (e.target.name === "alarmValue") {
-      setAlarmValue(value);
-    }
-  };
-
-  const validateInput = (value: number, name: string) => {
-    let status = STATUS.PENDING;
-
-    if (name === "maxValue") {
-      if (value < defaultValue) status = STATUS.MAX_LESS_DEF;
-      if (value === defaultValue) status = STATUS.EQUAL;
-      if (defaultValue < 0) status = STATUS.DEF_LESS_0;
-      if (alarmValue < 0) status = STATUS.ALARM_LESS_0;
-      if (value < 0) status = STATUS.MAX_LESS_0;
-    }
-    if (name === "defaultValue") {
-      if (value > maxValue) status = STATUS.MAX_LESS_DEF;
-      if (value === maxValue) status = STATUS.EQUAL;
-      if (maxValue < 0) status = STATUS.MAX_LESS_0;
-      if (alarmValue < 0) status = STATUS.ALARM_LESS_0;
-      if (value < 0) status = STATUS.DEF_LESS_0;
-    }
-    if (name === "alarmValue") {
-      if (defaultValue < 0) status = STATUS.DEF_LESS_0;
-      if (maxValue < 0) status = STATUS.MAX_LESS_0;
-      if (value < 0) status = STATUS.ALARM_LESS_0;
-    }
-    return { value, status };
+    dispatcher(action.setConditions({ value: Number(e.target.value), tagName: e.target.name }));
   };
 
   return (
