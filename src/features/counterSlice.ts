@@ -24,6 +24,7 @@ export const counterSlice = createSlice({
   initialState,
   reducers: {
     increment: (state) => {
+      if (state.count === state.maxValue) return;
       state.count += 1;
     },
     reset: (state) => {
@@ -68,6 +69,8 @@ export const counterSlice = createSlice({
           if (value < 0) status = STATUS.DEF_LESS_0;
         }
         if (tagName === "alarmValue") {
+          if (state.defaultValue > state.maxValue) status = STATUS.MAX_LESS_DEF;
+          if (state.defaultValue === state.maxValue) status = STATUS.EQUAL;
           if (state.defaultValue < 0) status = STATUS.DEF_LESS_0;
           if (state.maxValue < 0) status = STATUS.MAX_LESS_0;
           if (value < 0) status = STATUS.ALARM_LESS_0;

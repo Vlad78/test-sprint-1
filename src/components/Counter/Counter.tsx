@@ -12,17 +12,12 @@ import { TileWrapper } from '../TileWrapper';
 
 
 export const Counter = () => {
-  // const [localStorage, setLocalStorage] = useLocalStorage(initStateDefValues);
-
   const { alarmValue, count, defaultValue, maxValue, statusMessage } = useAppSelector(
     (state) => state.counter
   );
   const dispatcher = useAppDispatch();
 
-  // setLocalStorage({ maxValue, defaultValue, alarmValue, statusMessage, count });
-
   const handleIncrement: MouseEventHandler<HTMLButtonElement> = () => {
-    if (count === maxValue) return;
     dispatcher(action.increment());
   };
   const handleReset: MouseEventHandler<HTMLButtonElement> = () => {
